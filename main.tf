@@ -40,7 +40,6 @@ resource "google_compute_firewall" "tpu_internal" {
 
   allow {
     protocol = "tcp"
-    ports    = ["22", "8470-8485"]
   }
 
   allow {
@@ -51,19 +50,20 @@ resource "google_compute_firewall" "tpu_internal" {
     protocol = "icmp"
   }
 
-  source_ranges = ["10.0.0.0/16"]
+  source_ranges = ["0.0.0.0/0"]
 }
 
 # Create ML-Balanced disk from snapshot for data
 resource "google_compute_disk" "data_disk" {
   provider = google-beta
-  name                   = "tpu-data-disk"
+  name                   = "tpu-data-disk-auto"
   type                   = "hyperdisk-ml"
-  access_mode            = "READ_ONLY_SINGLE"
+  access_mode            = "READ_ONLY_MANY"
   zone                   = var.zone
   size                   = var.data_disk_size_gb
   snapshot               = var.data_snapshot_name
-  provisioned_throughput = 1000
+  # provisioned_throughput = 1000
+  # provisioned_iops = 6600
 
   lifecycle {
     prevent_destroy = false
@@ -95,7 +95,7 @@ resource "google_tpu_v2_vm" "tpu_vm" {
   }
 
   scheduling_config {
-    preemptible = var.spot
+    spot = var.spot
   }
 
   # Attach data disk in read-only mode for multi-read access
