@@ -1,0 +1,4 @@
+# Terraform variables for bucket-only deployment
+bucket_project_id = "your-gcp-project-id"
+bucket_region     = "us-central2"
+bucket_name_suffix = "tpu-checkpoints"
