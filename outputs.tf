@@ -1,5 +1,5 @@
 output "tpu_vm_name" {
-  description = "Name of the created TPU VM"
+  description = "Name of the TPU VM (customizable via variables)"
   value       = google_tpu_v2_vm.tpu_vm.name
 }
 
@@ -9,17 +9,17 @@ output "tpu_vm_id" {
 }
 
 output "network_name" {
-  description = "Name of the created network"
+  description = "Name of the TPU network (customizable via variables)"
   value       = google_compute_network.tpu_network.name
 }
 
 output "subnet_name" {
-  description = "Name of the created subnet"
+  description = "Name of the TPU subnet (customizable via variables)"
   value       = google_compute_subnetwork.tpu_subnet.name
 }
 
 output "data_disk_name" {
-  description = "Name of the created data disk"
+  description = "Name of the TPU data disk (customizable via variables)"
   value       = google_compute_disk.data_disk.name
 }
 

@@ -34,6 +34,9 @@ terraform apply
 
 **Step 3: Connect to TPU VM**:
 ```bash
+# Use the output from terraform to get the exact SSH command
+terraform output ssh_command
+# Or manually (adjust names if you customized them):
 gcloud compute tpus tpu-vm ssh tpu-training-vm --zone=us-central2-b
 ```
 
@@ -49,6 +52,31 @@ gcloud compute tpus tpu-vm ssh tpu-training-vm --zone=us-central2-b
 - `tpu_accelerator_type`: TPU type (default: v6e-256)
 - `tpu_topology`: Pod topology (default: 8x16)
 - `data_disk_size_gb`: Data disk size (default: 1000 GB)
+- `spot`: Use spot TPU instances (default: false)
+
+### Resource Naming (Optional)
+You can customize resource names using these variables:
+- `resource_name_prefix`: Prefix for all resources (default: "tpu")
+- `resource_name_suffix`: Suffix for all resources (default: "")
+- Individual name overrides:
+  - `network_name`: Custom VPC network name
+  - `subnet_name`: Custom subnet name
+  - `firewall_name`: Custom firewall rule name
+  - `data_disk_name`: Custom data disk name
+  - `tpu_vm_name`: Custom TPU VM name
+
+**Examples**:
+```hcl
+# Use prefix/suffix for consistent naming
+resource_name_prefix = "ml-training"
+resource_name_suffix = "prod"
+# Results in: ml-training-network-prod, ml-training-vm-prod, etc.
+
+# Override specific resource names
+tpu_vm_name = "my-special-tpu"
+network_name = "custom-vpc"
+# Other resources use default prefix/suffix pattern
+```
 
 ## Storage Setup
 
@@ -67,7 +95,7 @@ The startup script automatically:
 ## Training Setup
 
 After infrastructure is ready:
-1. SSH into the TPU VM
+1. SSH into the TPU VM (use `terraform output ssh_command` for exact command)
 2. Upload your training code to `/opt/training`
 3. Run training with environment variables:
    - `DATA_DIR=/mnt/data`
@@ -88,7 +116,10 @@ This setup uses a **separated architecture** where bucket and TPU infrastructure
 ### Files
 - `bucket/bucket-only.tf` - Creates bucket and service account (run first)
 - `main.tf` - Creates TPU infrastructure, references existing bucket
+- `variables.tf` - All configurable variables including naming options
+- `outputs.tf` - Resource names and connection information
 - `bucket/terraform.tfvars.example` - Configuration template for bucket creation
+- `terraform.tfvars.example` - Configuration template for TPU infrastructure
 
 ## Cleanup
 

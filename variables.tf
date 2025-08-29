@@ -65,3 +65,47 @@ variable "spot" {
   type        = bool
   default     = false
 }
+
+# Naming variables
+variable "resource_name_prefix" {
+  description = "Prefix for all resource names"
+  type        = string
+  default     = "tpu"
+}
+
+variable "resource_name_suffix" {
+  description = "Suffix for all resource names (optional)"
+  type        = string
+  default     = ""
+}
+
+# Individual resource name overrides (optional)
+variable "network_name" {
+  description = "Custom name for the TPU network (overrides prefix/suffix if provided)"
+  type        = string
+  default     = ""
+}
+
+variable "subnet_name" {
+  description = "Custom name for the TPU subnet (overrides prefix/suffix if provided)"
+  type        = string
+  default     = ""
+}
+
+variable "firewall_name" {
+  description = "Custom name for the TPU firewall rule (overrides prefix/suffix if provided)"
+  type        = string
+  default     = ""
+}
+
+variable "data_disk_name" {
+  description = "Custom name for the TPU data disk (overrides prefix/suffix if provided)"
+  type        = string
+  default     = ""
+}
+
+variable "tpu_vm_name" {
+  description = "Custom name for the TPU VM (overrides prefix/suffix if provided)"
+  type        = string
+  default     = ""
+}

@@ -19,15 +19,26 @@ provider "google-beta" {
   zone    = var.zone
 }
 
+# Local values for resource naming
+locals {
+  name_suffix = var.resource_name_suffix != "" ? "-${var.resource_name_suffix}" : ""
+  
+  network_name    = var.network_name != "" ? var.network_name : "${var.resource_name_prefix}-network${local.name_suffix}"
+  subnet_name     = var.subnet_name != "" ? var.subnet_name : "${var.resource_name_prefix}-subnet${local.name_suffix}"
+  firewall_name   = var.firewall_name != "" ? var.firewall_name : "${var.resource_name_prefix}-internal${local.name_suffix}"
+  data_disk_name  = var.data_disk_name != "" ? var.data_disk_name : "${var.resource_name_prefix}-data-disk-auto${local.name_suffix}"
+  tpu_vm_name     = var.tpu_vm_name != "" ? var.tpu_vm_name : "${var.resource_name_prefix}-training-vm${local.name_suffix}"
+}
+
 # Create custom network for TPU with high MTU
 resource "google_compute_network" "tpu_network" {
-  name                    = "tpu-network"
+  name                    = local.network_name
   auto_create_subnetworks = false
   mtu                     = 8896
 }
 
 resource "google_compute_subnetwork" "tpu_subnet" {
-  name          = "tpu-subnet"
+  name          = local.subnet_name
   ip_cidr_range = "10.0.0.0/16"
   region        = var.region
   network       = google_compute_network.tpu_network.id
@@ -35,7 +46,7 @@ resource "google_compute_subnetwork" "tpu_subnet" {
 
 # Firewall rules for TPU communication
 resource "google_compute_firewall" "tpu_internal" {
-  name    = "tpu-internal"
+  name    = local.firewall_name
   network = google_compute_network.tpu_network.name
 
   allow {
@@ -56,7 +67,7 @@ resource "google_compute_firewall" "tpu_internal" {
 # Create ML-Balanced disk from snapshot for data
 resource "google_compute_disk" "data_disk" {
   provider = google-beta
-  name                   = "tpu-data-disk-auto"
+  name                   = local.data_disk_name
   type                   = "hyperdisk-ml"
   access_mode            = "READ_ONLY_MANY"
   zone                   = var.zone
@@ -83,7 +94,7 @@ data "google_service_account" "tpu_service_account" {
 # TPU v2 VM with multihost configuration
 resource "google_tpu_v2_vm" "tpu_vm" {
   provider = google-beta
-  name             = "tpu-training-vm"
+  name             = local.tpu_vm_name
   zone             = var.zone
   runtime_version  = var.runtime_version
   accelerator_type = var.tpu_accelerator_type
